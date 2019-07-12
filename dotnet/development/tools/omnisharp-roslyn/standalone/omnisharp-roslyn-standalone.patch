@@ -1,0 +1,42 @@
+diff --git a/src/OmniSharp.Host/MSBuild/Discovery/MSBuildLocator.cs b/src/OmniSharp.Host/MSBuild/Discovery/MSBuildLocator.cs
+index 339206c6..3a676634 100644
+--- a/src/OmniSharp.Host/MSBuild/Discovery/MSBuildLocator.cs
++++ b/src/OmniSharp.Host/MSBuild/Discovery/MSBuildLocator.cs
+@@ -47,7 +47,7 @@ public static MSBuildLocator CreateDefault(ILoggerFactory loggerFactory, IAssemb
+                     new DevConsoleInstanceProvider(loggerFactory),
+                     new VisualStudioInstanceProvider(loggerFactory),
+                     new MonoInstanceProvider(loggerFactory),
+-                    new StandAloneInstanceProvider(loggerFactory, allowMonoPaths: true)));
++                    new StandAloneInstanceProvider(loggerFactory, allowMonoPaths: false)));
+ 
+         public static MSBuildLocator CreateStandAlone(ILoggerFactory loggerFactory, IAssemblyLoader assemblyLoader, bool allowMonoPaths)
+             => new MSBuildLocator(loggerFactory, assemblyLoader,
+diff --git a/src/OmniSharp.Shared/Utilities/Platform.cs b/src/OmniSharp.Shared/Utilities/Platform.cs
+index 1ed08b30..8a880b65 100644
+--- a/src/OmniSharp.Shared/Utilities/Platform.cs
++++ b/src/OmniSharp.Shared/Utilities/Platform.cs
+@@ -1,5 +1,6 @@
+ ﻿using System;
+ using System.IO;
++using System.Linq;
+ 
+ namespace OmniSharp.Utilities
+ {
+@@ -183,7 +184,8 @@ private static Version ParseVersion(string versionText)
+                 versionText += ".0";
+             }
+ 
+-            if (Version.TryParse(versionText, out var version))
++            var normVersionText = String.Join(".", versionText.Split('.').Take(2));
++            if (Version.TryParse(normVersionText, out var version))
+             {
+                 return version;
+             }
+@@ -192,6 +194,6 @@ private static Version ParseVersion(string versionText)
+         }
+ 
+         private static string RunOnBashAndCaptureOutput(string fileName, string arguments)
+-            => ProcessHelper.RunAndCaptureOutput("/bin/bash", $"-c '{fileName} {arguments}'");
++            => ProcessHelper.RunAndCaptureOutput("/bin/sh", $"-c '{fileName} {arguments}'");
+     }
+ }
